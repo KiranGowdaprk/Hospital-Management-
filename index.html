@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Hospital Management System</title>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+padding:0;
+background:linear-gradient(to right,#4facfe,#00f2fe);
+}
+
+/* LOGIN */
+
+#loginPage,#registerPage{
+text-align:center;
+padding-top:120px;
+}
+
+.box{
+background:white;
+padding:20px;
+width:300px;
+margin:auto;
+border-radius:10px;
+}
+
+input,select{
+width:90%;
+padding:10px;
+margin:10px;
+}
+
+button{
+padding:10px 20px;
+background:blue;
+color:white;
+border:none;
+cursor:pointer;
+border-radius:5px;
+}
+
+button:hover{
+background:#0047ab;
+}
+
+#error{
+color:red;
+}
+
+/* HOME */
+
+#homePage{
+display:none;
+padding:20px;
+background:#f0f8ff;
+min-height:100vh;
+}
+
+h1{
+text-align:center;
+background:#007bff;
+color:white;
+padding:10px;
+border-radius:5px;
+}
+
+.form-box{
+background:white;
+padding:20px;
+border-radius:10px;
+width:400px;
+margin:auto;
+box-shadow:0 0 10px gray;
+}
+
+table{
+width:100%;
+margin-top:20px;
+border-collapse:collapse;
+background:white;
+}
+
+table,th,td{
+border:1px solid black;
+}
+
+th{
+background:#007bff;
+color:white;
+}
+
+td{
+text-align:center;
+padding:10px;
+}
+
+.logout{
+float:right;
+background:red;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- LOGIN PAGE -->
+
+<div id="loginPage">
+
+<div class="box">
+
+<h2>Login</h2>
+
+<input type="text" id="loginUser" placeholder="Username">
+
+<input type="password" id="loginPass" placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+<br><br>
+
+<button onclick="showRegister()">Create Account</button>
+
+<p id="error"></p>
+
+</div>
+
+</div>
+
+
+<!-- REGISTER PAGE -->
+
+<div id="registerPage" style="display:none">
+
+<div class="box">
+
+<h2>Create Account</h2>
+
+<input type="text" id="regUser" placeholder="Username">
+
+<input type="password" id="regPass" placeholder="Password">
+
+<button onclick="register()">Register</button>
+
+<br><br>
+
+<button onclick="showLogin()">Back to Login</button>
+
+</div>
+
+</div>
+
+
+<!-- HOME PAGE -->
+
+<div id="homePage">
+
+<button class="logout" onclick="logout()">Logout</button>
+
+<h1>Hospital Management System</h1>
+
+<div class="form-box">
+
+<h3>Add Patient</h3>
+
+<input type="text" id="name" placeholder="Patient Name">
+
+<input type="number" id="age" placeholder="Age">
+
+<input type="text" id="disease" placeholder="Disease">
+
+<select id="doctor">
+
+<option value="">Select Doctor</option>
+<option>Dr. Ravi</option>
+<option>Dr. Meena</option>
+<option>Dr. Kumar</option>
+
+</select>
+
+<button onclick="addPatient()">Add Patient</button>
+
+</div>
+
+
+<table id="patientTable">
+
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Age</th>
+<th>Disease</th>
+<th>Doctor</th>
+</tr>
+
+</table>
+
+</div>
+
+
+<script>
+
+let currentUser=null;
+
+/* PAGE SWITCH */
+
+function showRegister(){
+document.getElementById("loginPage").style.display="none";
+document.getElementById("registerPage").style.display="block";
+}
+
+function showLogin(){
+document.getElementById("registerPage").style.display="none";
+document.getElementById("loginPage").style.display="block";
+}
+
+
+/* REGISTER */
+
+function register(){
+
+let user=document.getElementById("regUser").value;
+let pass=document.getElementById("regPass").value;
+
+if(user===""||pass===""){
+alert("Fill all fields");
+return;
+}
+
+let users=JSON.parse(localStorage.getItem("users"))||[];
+
+users.push({username:user,password:pass});
+
+localStorage.setItem("users",JSON.stringify(users));
+
+alert("Account Created Successfully!");
+
+showLogin();
+
+}
+
+
+/* LOGIN */
+
+function login(){
+
+let user=document.getElementById("loginUser").value;
+let pass=document.getElementById("loginPass").value;
+
+let users=JSON.parse(localStorage.getItem("users"))||[];
+
+let found=users.find(u=>u.username===user && u.password===pass);
+
+if(found){
+
+currentUser=user;
+
+document.getElementById("loginPage").style.display="none";
+document.getElementById("homePage").style.display="block";
+
+loadPatients();
+
+}
+
+else{
+
+document.getElementById("error").innerText="Invalid Login";
+
+}
+
+}
+
+
+/* LOGOUT */
+
+function logout(){
+
+currentUser=null;
+
+document.getElementById("homePage").style.display="none";
+document.getElementById("loginPage").style.display="block";
+
+}
+
+
+/* LOAD PATIENTS */
+
+function loadPatients(){
+
+let table=document.getElementById("patientTable");
+
+table.innerHTML=`
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Age</th>
+<th>Disease</th>
+<th>Doctor</th>
+</tr>`;
+
+let patients=JSON.parse(localStorage.getItem("patients_"+currentUser))||[];
+
+patients.forEach((p,i)=>{
+
+let row=table.insertRow();
+
+row.insertCell(0).innerText=p.id;
+
+let nameCell=row.insertCell(1);
+
+nameCell.innerHTML=`<a onclick="showPatient(${i})">${p.name}</a>`;
+
+row.insertCell(2).innerText=p.age;
+row.insertCell(3).innerText=p.disease;
+row.insertCell(4).innerText=p.doctor;
+
+});
+
+}
+
+
+/* ADD PATIENT */
+
+function addPatient(){
+
+let name=document.getElementById("name").value;
+let age=document.getElementById("age").value;
+let disease=document.getElementById("disease").value;
+let doctor=document.getElementById("doctor").value;
+
+if(name===""||age===""||disease===""||doctor===""){
+alert("Fill all fields");
+return;
+}
+
+let patients=JSON.parse(localStorage.getItem("patients_"+currentUser))||[];
+
+let patient={
+id:patients.length+1,
+name:name,
+age:age,
+disease:disease,
+doctor:doctor
+};
+
+patients.push(patient);
+
+localStorage.setItem("patients_"+currentUser,JSON.stringify(patients));
+
+alert("✅ Patient added successfully");
+
+document.getElementById("name").value="";
+document.getElementById("age").value="";
+document.getElementById("disease").value="";
+document.getElementById("doctor").value="";
+
+loadPatients();
+
+}
+
+
+/* SHOW PATIENT DETAILS */
+
+function showPatient(index){
+
+let patients=JSON.parse(localStorage.getItem("patients_"+currentUser))||[];
+
+let p=patients[index];
+
+alert(
+
+"Patient Details\n\n"+
+"ID: "+p.id+"\n"+
+"Name: "+p.name+"\n"+
+"Age: "+p.age+"\n"+
+"Disease: "+p.disease+"\n"+
+"Doctor: "+p.doctor
+
+);
+
+}
+
+</script>
+
+</body>
+</html>
