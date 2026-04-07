@@ -2,8 +2,10 @@
 <html>
 <head>
 <title>Hospital Management System</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- PDF Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 
@@ -121,13 +123,11 @@ cursor:pointer;
 <!-- LOGIN -->
 
 <div id="loginPage">
-
 <div class="box">
 
 <h2>Login</h2>
 
 <input type="text" id="loginUser" placeholder="Username">
-
 <input type="password" id="loginPass" placeholder="Password">
 
 <button onclick="login()">Login</button>
@@ -139,20 +139,17 @@ cursor:pointer;
 <p id="error"></p>
 
 </div>
-
 </div>
 
 
 <!-- REGISTER -->
 
 <div id="registerPage" style="display:none">
-
 <div class="box">
 
 <h2>Create Account</h2>
 
 <input type="text" id="regUser" placeholder="Username">
-
 <input type="password" id="regPass" placeholder="Password">
 
 <button onclick="register()">Register</button>
@@ -162,7 +159,6 @@ cursor:pointer;
 <button onclick="showLogin()">Back to Login</button>
 
 </div>
-
 </div>
 
 
@@ -182,18 +178,14 @@ cursor:pointer;
 <h3>Add Patient</h3>
 
 <input type="text" id="pname" placeholder="Patient Name">
-
 <input type="number" id="page" placeholder="Age">
-
 <input type="text" id="pdisease" placeholder="Disease">
 
 <select id="pdoctor">
-
 <option value="">Select Doctor</option>
 <option>Dr. Ravi</option>
 <option>Dr. Meena</option>
 <option>Dr. Kumar</option>
-
 </select>
 
 <button onclick="addPatient()">Add Patient</button>
@@ -206,7 +198,6 @@ cursor:pointer;
 <div class="table-container">
 
 <table id="patientTable">
-
 <tr>
 <th>ID</th>
 <th>Name</th>
@@ -214,13 +205,12 @@ cursor:pointer;
 <th>Disease</th>
 <th>Doctor</th>
 </tr>
-
 </table>
 
 </div>
 
 
-<!-- APPOINTMENT BOOKING -->
+<!-- APPOINTMENT -->
 
 <div class="section">
 
@@ -231,19 +221,22 @@ cursor:pointer;
 </select>
 
 <select id="adoctor">
-
 <option value="">Select Doctor</option>
 <option>Dr. Ravi</option>
 <option>Dr. Meena</option>
 <option>Dr. Kumar</option>
-
 </select>
 
 <input type="date" id="adate">
-
 <input type="time" id="atime">
 
 <button onclick="bookAppointment()">Book Appointment</button>
+
+<br><br>
+
+<button id="receiptBtn" onclick="downloadReceipt()" style="display:none;background:green;">
+Download PDF Receipt
+</button>
 
 </div>
 
@@ -271,6 +264,7 @@ cursor:pointer;
 <script>
 
 let currentUser=null;
+let lastAppointment=null;
 
 /* PAGE SWITCH */
 
@@ -330,7 +324,6 @@ loadPatients();
 loadAppointments();
 
 }
-
 else{
 error.innerText="Invalid login";
 }
@@ -380,8 +373,6 @@ name.innerHTML=`<a onclick="showPatient(${i})">${p.name}</a>`;
 row.insertCell(2).innerText=p.age;
 row.insertCell(3).innerText=p.disease;
 row.insertCell(4).innerText=p.doctor;
-
-/* Add patient to appointment dropdown */
 
 let option=document.createElement("option");
 option.value=p.name;
@@ -466,11 +457,17 @@ return;
 
 let appointments=JSON.parse(localStorage.getItem("appointments_"+currentUser))||[];
 
-appointments.push({patient,doctor,date,time});
+let appointment={patient,doctor,date,time};
+
+appointments.push(appointment);
 
 localStorage.setItem("appointments_"+currentUser,JSON.stringify(appointments));
 
+lastAppointment=appointment;
+
 alert("Appointment Booked");
+
+document.getElementById("receiptBtn").style.display="inline-block";
 
 apatient.value="";
 adoctor.value="";
@@ -507,6 +504,36 @@ row.insertCell(2).innerText=a.date;
 row.insertCell(3).innerText=a.time;
 
 });
+
+}
+
+/* DOWNLOAD PDF RECEIPT */
+
+function downloadReceipt(){
+
+if(!lastAppointment){
+alert("No appointment found");
+return;
+}
+
+const { jsPDF } = window.jspdf;
+
+let doc=new jsPDF();
+
+doc.setFontSize(18);
+doc.text("Hospital Appointment Receipt",20,20);
+
+doc.setFontSize(12);
+
+doc.text("Patient Name: "+lastAppointment.patient,20,50);
+doc.text("Doctor: "+lastAppointment.doctor,20,65);
+doc.text("Date: "+lastAppointment.date,20,80);
+doc.text("Time: "+lastAppointment.time,20,95);
+
+doc.text("Status: Confirmed",20,120);
+doc.text("Thank you for booking.",20,140);
+
+doc.save("Appointment_Receipt.pdf");
 
 }
 
