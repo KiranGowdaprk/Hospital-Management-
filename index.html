@@ -10,7 +10,6 @@
 body{
 font-family:Arial;
 margin:0;
-padding:0;
 background:linear-gradient(to right,#4facfe,#00f2fe);
 }
 
@@ -35,7 +34,6 @@ input,select{
 width:90%;
 padding:10px;
 margin:10px;
-font-size:16px;
 }
 
 button{
@@ -43,16 +41,12 @@ padding:10px 20px;
 background:blue;
 color:white;
 border:none;
-cursor:pointer;
 border-radius:5px;
+cursor:pointer;
 }
 
 button:hover{
 background:#0047ab;
-}
-
-#error{
-color:red;
 }
 
 /* HOME */
@@ -70,16 +64,15 @@ background:#007bff;
 color:white;
 padding:10px;
 border-radius:5px;
-font-size:22px;
 }
 
-.form-box{
+.section{
 background:white;
 padding:20px;
-border-radius:10px;
+margin:20px auto;
 width:90%;
-max-width:400px;
-margin:auto;
+max-width:500px;
+border-radius:10px;
 box-shadow:0 0 10px gray;
 }
 
@@ -92,14 +85,13 @@ background:red;
 
 .table-container{
 overflow-x:auto;
-margin-top:20px;
 }
 
 table{
 width:100%;
 border-collapse:collapse;
+margin-top:20px;
 background:white;
-min-width:500px;
 }
 
 table,th,td{
@@ -113,36 +105,20 @@ color:white;
 
 td{
 text-align:center;
-padding:10px;
+padding:8px;
 }
 
 a{
 color:blue;
 cursor:pointer;
-text-decoration:underline;
-}
-
-/* MOBILE */
-
-@media(max-width:600px){
-
-h1{
-font-size:18px;
-}
-
-.form-box{
-width:95%;
-}
-
 }
 
 </style>
-
 </head>
 
 <body>
 
-<!-- LOGIN PAGE -->
+<!-- LOGIN -->
 
 <div id="loginPage">
 
@@ -167,7 +143,7 @@ width:95%;
 </div>
 
 
-<!-- REGISTER PAGE -->
+<!-- REGISTER -->
 
 <div id="registerPage" style="display:none">
 
@@ -190,7 +166,7 @@ width:95%;
 </div>
 
 
-<!-- HOME PAGE -->
+<!-- HOME -->
 
 <div id="homePage">
 
@@ -198,17 +174,20 @@ width:95%;
 
 <h1>Hospital Management System</h1>
 
-<div class="form-box">
+
+<!-- ADD PATIENT -->
+
+<div class="section">
 
 <h3>Add Patient</h3>
 
-<input type="text" id="name" placeholder="Patient Name">
+<input type="text" id="pname" placeholder="Patient Name">
 
-<input type="number" id="age" placeholder="Age">
+<input type="number" id="page" placeholder="Age">
 
-<input type="text" id="disease" placeholder="Disease">
+<input type="text" id="pdisease" placeholder="Disease">
 
-<select id="doctor">
+<select id="pdoctor">
 
 <option value="">Select Doctor</option>
 <option>Dr. Ravi</option>
@@ -221,6 +200,8 @@ width:95%;
 
 </div>
 
+
+<!-- PATIENT TABLE -->
 
 <div class="table-container">
 
@@ -238,6 +219,50 @@ width:95%;
 
 </div>
 
+
+<!-- APPOINTMENT BOOKING -->
+
+<div class="section">
+
+<h3>Book Appointment</h3>
+
+<input type="text" id="apatient" placeholder="Patient Name">
+
+<select id="adoctor">
+
+<option value="">Select Doctor</option>
+<option>Dr. Ravi</option>
+<option>Dr. Meena</option>
+<option>Dr. Kumar</option>
+
+</select>
+
+<input type="date" id="adate">
+
+<input type="time" id="atime">
+
+<button onclick="bookAppointment()">Book Appointment</button>
+
+</div>
+
+
+<!-- APPOINTMENT TABLE -->
+
+<div class="table-container">
+
+<table id="appointmentTable">
+
+<tr>
+<th>Patient</th>
+<th>Doctor</th>
+<th>Date</th>
+<th>Time</th>
+</tr>
+
+</table>
+
+</div>
+
 </div>
 
 
@@ -248,25 +273,24 @@ let currentUser=null;
 /* PAGE SWITCH */
 
 function showRegister(){
-document.getElementById("loginPage").style.display="none";
-document.getElementById("registerPage").style.display="block";
+loginPage.style.display="none";
+registerPage.style.display="block";
 }
 
 function showLogin(){
-document.getElementById("registerPage").style.display="none";
-document.getElementById("loginPage").style.display="block";
+registerPage.style.display="none";
+loginPage.style.display="block";
 }
-
 
 /* REGISTER */
 
 function register(){
 
-let user=document.getElementById("regUser").value;
-let pass=document.getElementById("regPass").value;
+let user=regUser.value;
+let pass=regPass.value;
 
-if(user===""||pass===""){
-alert("Please fill all fields");
+if(user==""||pass==""){
+alert("Fill all fields");
 return;
 }
 
@@ -276,19 +300,18 @@ users.push({username:user,password:pass});
 
 localStorage.setItem("users",JSON.stringify(users));
 
-alert("Account created successfully");
+alert("Account Created!");
 
 showLogin();
 
 }
 
-
 /* LOGIN */
 
 function login(){
 
-let user=document.getElementById("loginUser").value;
-let pass=document.getElementById("loginPass").value;
+let user=loginUser.value;
+let pass=loginPass.value;
 
 let users=JSON.parse(localStorage.getItem("users"))||[];
 
@@ -298,21 +321,19 @@ if(found){
 
 currentUser=user;
 
-document.getElementById("loginPage").style.display="none";
-document.getElementById("homePage").style.display="block";
+loginPage.style.display="none";
+homePage.style.display="block";
 
 loadPatients();
+loadAppointments();
 
 }
 
 else{
-
-document.getElementById("error").innerText="Invalid login";
-
+error.innerText="Invalid login";
 }
 
 }
-
 
 /* LOGOUT */
 
@@ -320,17 +341,16 @@ function logout(){
 
 currentUser=null;
 
-document.getElementById("homePage").style.display="none";
-document.getElementById("loginPage").style.display="block";
+homePage.style.display="none";
+loginPage.style.display="block";
 
 }
-
 
 /* LOAD PATIENTS */
 
 function loadPatients(){
 
-let table=document.getElementById("patientTable");
+let table=patientTable;
 
 table.innerHTML=`
 <tr>
@@ -339,8 +359,7 @@ table.innerHTML=`
 <th>Age</th>
 <th>Disease</th>
 <th>Doctor</th>
-</tr>
-`;
+</tr>`;
 
 let patients=JSON.parse(localStorage.getItem("patients_"+currentUser))||[];
 
@@ -350,9 +369,8 @@ let row=table.insertRow();
 
 row.insertCell(0).innerText=p.id;
 
-let nameCell=row.insertCell(1);
-
-nameCell.innerHTML=`<a onclick="showPatient(${i})">${p.name}</a>`;
+let name=row.insertCell(1);
+name.innerHTML=`<a onclick="showPatient(${i})">${p.name}</a>`;
 
 row.insertCell(2).innerText=p.age;
 row.insertCell(3).innerText=p.disease;
@@ -362,18 +380,17 @@ row.insertCell(4).innerText=p.doctor;
 
 }
 
-
 /* ADD PATIENT */
 
 function addPatient(){
 
-let name=document.getElementById("name").value;
-let age=document.getElementById("age").value;
-let disease=document.getElementById("disease").value;
-let doctor=document.getElementById("doctor").value;
+let name=pname.value;
+let age=page.value;
+let disease=pdisease.value;
+let doctor=pdoctor.value;
 
-if(name===""||age===""||disease===""||doctor===""){
-alert("Please fill all fields");
+if(name==""||age==""||disease==""||doctor==""){
+alert("Fill all fields");
 return;
 }
 
@@ -391,34 +408,92 @@ patients.push(patient);
 
 localStorage.setItem("patients_"+currentUser,JSON.stringify(patients));
 
-alert("✅ Patient added successfully");
+alert("Patient Added");
 
-document.getElementById("name").value="";
-document.getElementById("age").value="";
-document.getElementById("disease").value="";
-document.getElementById("doctor").value="";
+pname.value="";
+page.value="";
+pdisease.value="";
+pdoctor.value="";
 
 loadPatients();
 
 }
 
+/* SHOW PATIENT */
 
-/* SHOW PATIENT DETAILS */
+function showPatient(i){
 
-function showPatient(index){
+let patients=JSON.parse(localStorage.getItem("patients_"+currentUser));
 
-let patients=JSON.parse(localStorage.getItem("patients_"+currentUser))||[];
-
-let p=patients[index];
+let p=patients[i];
 
 alert(
 "Patient Details\n\n"+
-"ID: "+p.id+"\n"+
 "Name: "+p.name+"\n"+
 "Age: "+p.age+"\n"+
 "Disease: "+p.disease+"\n"+
 "Doctor: "+p.doctor
 );
+
+}
+
+/* BOOK APPOINTMENT */
+
+function bookAppointment(){
+
+let patient=apatient.value;
+let doctor=adoctor.value;
+let date=adate.value;
+let time=atime.value;
+
+if(patient==""||doctor==""||date==""||time==""){
+alert("Fill all fields");
+return;
+}
+
+let appointments=JSON.parse(localStorage.getItem("appointments_"+currentUser))||[];
+
+appointments.push({patient,doctor,date,time});
+
+localStorage.setItem("appointments_"+currentUser,JSON.stringify(appointments));
+
+alert("Appointment Booked");
+
+apatient.value="";
+adoctor.value="";
+adate.value="";
+atime.value="";
+
+loadAppointments();
+
+}
+
+/* LOAD APPOINTMENTS */
+
+function loadAppointments(){
+
+let table=appointmentTable;
+
+table.innerHTML=`
+<tr>
+<th>Patient</th>
+<th>Doctor</th>
+<th>Date</th>
+<th>Time</th>
+</tr>`;
+
+let appointments=JSON.parse(localStorage.getItem("appointments_"+currentUser))||[];
+
+appointments.forEach(a=>{
+
+let row=table.insertRow();
+
+row.insertCell(0).innerText=a.patient;
+row.insertCell(1).innerText=a.doctor;
+row.insertCell(2).innerText=a.date;
+row.insertCell(3).innerText=a.time;
+
+});
 
 }
 
