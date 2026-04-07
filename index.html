@@ -226,7 +226,9 @@ cursor:pointer;
 
 <h3>Book Appointment</h3>
 
-<input type="text" id="apatient" placeholder="Patient Name">
+<select id="apatient">
+<option value="">Select Patient</option>
+</select>
 
 <select id="adoctor">
 
@@ -351,6 +353,7 @@ loginPage.style.display="block";
 function loadPatients(){
 
 let table=patientTable;
+let patientSelect=document.getElementById("apatient");
 
 table.innerHTML=`
 <tr>
@@ -360,6 +363,8 @@ table.innerHTML=`
 <th>Disease</th>
 <th>Doctor</th>
 </tr>`;
+
+patientSelect.innerHTML='<option value="">Select Patient</option>';
 
 let patients=JSON.parse(localStorage.getItem("patients_"+currentUser))||[];
 
@@ -375,6 +380,14 @@ name.innerHTML=`<a onclick="showPatient(${i})">${p.name}</a>`;
 row.insertCell(2).innerText=p.age;
 row.insertCell(3).innerText=p.disease;
 row.insertCell(4).innerText=p.doctor;
+
+/* Add patient to appointment dropdown */
+
+let option=document.createElement("option");
+option.value=p.name;
+option.text=p.name;
+
+patientSelect.appendChild(option);
 
 });
 
