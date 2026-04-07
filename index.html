@@ -3,6 +3,8 @@
 <head>
 <title>Hospital Management System</title>
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 
 body{
@@ -12,25 +14,28 @@ padding:0;
 background:linear-gradient(to right,#4facfe,#00f2fe);
 }
 
-/* LOGIN */
+/* LOGIN + REGISTER */
 
 #loginPage,#registerPage{
 text-align:center;
-padding-top:120px;
+padding-top:80px;
 }
 
 .box{
 background:white;
 padding:20px;
-width:300px;
+width:90%;
+max-width:350px;
 margin:auto;
 border-radius:10px;
+box-shadow:0 0 10px gray;
 }
 
 input,select{
 width:90%;
 padding:10px;
 margin:10px;
+font-size:16px;
 }
 
 button{
@@ -54,7 +59,7 @@ color:red;
 
 #homePage{
 display:none;
-padding:20px;
+padding:15px;
 background:#f0f8ff;
 min-height:100vh;
 }
@@ -65,22 +70,36 @@ background:#007bff;
 color:white;
 padding:10px;
 border-radius:5px;
+font-size:22px;
 }
 
 .form-box{
 background:white;
 padding:20px;
 border-radius:10px;
-width:400px;
+width:90%;
+max-width:400px;
 margin:auto;
 box-shadow:0 0 10px gray;
 }
 
+.logout{
+float:right;
+background:red;
+}
+
+/* TABLE */
+
+.table-container{
+overflow-x:auto;
+margin-top:20px;
+}
+
 table{
 width:100%;
-margin-top:20px;
 border-collapse:collapse;
 background:white;
+min-width:500px;
 }
 
 table,th,td{
@@ -97,9 +116,24 @@ text-align:center;
 padding:10px;
 }
 
-.logout{
-float:right;
-background:red;
+a{
+color:blue;
+cursor:pointer;
+text-decoration:underline;
+}
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+h1{
+font-size:18px;
+}
+
+.form-box{
+width:95%;
+}
+
 }
 
 </style>
@@ -188,6 +222,8 @@ background:red;
 </div>
 
 
+<div class="table-container">
+
 <table id="patientTable">
 
 <tr>
@@ -199,6 +235,8 @@ background:red;
 </tr>
 
 </table>
+
+</div>
 
 </div>
 
@@ -228,7 +266,7 @@ let user=document.getElementById("regUser").value;
 let pass=document.getElementById("regPass").value;
 
 if(user===""||pass===""){
-alert("Fill all fields");
+alert("Please fill all fields");
 return;
 }
 
@@ -238,7 +276,7 @@ users.push({username:user,password:pass});
 
 localStorage.setItem("users",JSON.stringify(users));
 
-alert("Account Created Successfully!");
+alert("Account created successfully");
 
 showLogin();
 
@@ -269,7 +307,7 @@ loadPatients();
 
 else{
 
-document.getElementById("error").innerText="Invalid Login";
+document.getElementById("error").innerText="Invalid login";
 
 }
 
@@ -301,7 +339,8 @@ table.innerHTML=`
 <th>Age</th>
 <th>Disease</th>
 <th>Doctor</th>
-</tr>`;
+</tr>
+`;
 
 let patients=JSON.parse(localStorage.getItem("patients_"+currentUser))||[];
 
@@ -334,7 +373,7 @@ let disease=document.getElementById("disease").value;
 let doctor=document.getElementById("doctor").value;
 
 if(name===""||age===""||disease===""||doctor===""){
-alert("Fill all fields");
+alert("Please fill all fields");
 return;
 }
 
@@ -373,14 +412,12 @@ let patients=JSON.parse(localStorage.getItem("patients_"+currentUser))||[];
 let p=patients[index];
 
 alert(
-
 "Patient Details\n\n"+
 "ID: "+p.id+"\n"+
 "Name: "+p.name+"\n"+
 "Age: "+p.age+"\n"+
 "Disease: "+p.disease+"\n"+
 "Doctor: "+p.doctor
-
 );
 
 }
