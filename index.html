@@ -15,7 +15,7 @@ margin:0;
 background:linear-gradient(to right,#4facfe,#00f2fe);
 }
 
-/* LOGIN + REGISTER */
+/* LOGIN */
 
 #loginPage,#registerPage{
 text-align:center;
@@ -47,8 +47,9 @@ border-radius:5px;
 cursor:pointer;
 }
 
-button:hover{
-background:#0047ab;
+.logout{
+float:right;
+background:red;
 }
 
 /* HOME */
@@ -78,17 +79,6 @@ border-radius:10px;
 box-shadow:0 0 10px gray;
 }
 
-.logout{
-float:right;
-background:red;
-}
-
-/* TABLE */
-
-.table-container{
-overflow-x:auto;
-}
-
 table{
 width:100%;
 border-collapse:collapse;
@@ -108,11 +98,6 @@ color:white;
 td{
 text-align:center;
 padding:8px;
-}
-
-a{
-color:blue;
-cursor:pointer;
 }
 
 </style>
@@ -156,7 +141,7 @@ cursor:pointer;
 
 <br><br>
 
-<button onclick="showLogin()">Back to Login</button>
+<button onclick="showLogin()">Back</button>
 
 </div>
 </div>
@@ -170,7 +155,6 @@ cursor:pointer;
 
 <h1>Hospital Management System</h1>
 
-
 <!-- ADD PATIENT -->
 
 <div class="section">
@@ -183,19 +167,15 @@ cursor:pointer;
 
 <select id="pdoctor">
 <option value="">Select Doctor</option>
-<option>Dr. Ravi</option>
-<option>Dr. Meena</option>
-<option>Dr. Kumar</option>
+<option>Dr Ravi</option>
+<option>Dr Meena</option>
+<option>Dr Kumar</option>
 </select>
 
 <button onclick="addPatient()">Add Patient</button>
 
 </div>
 
-
-<!-- PATIENT TABLE -->
-
-<div class="table-container">
 
 <table id="patientTable">
 <tr>
@@ -206,8 +186,6 @@ cursor:pointer;
 <th>Doctor</th>
 </tr>
 </table>
-
-</div>
 
 
 <!-- APPOINTMENT -->
@@ -222,9 +200,9 @@ cursor:pointer;
 
 <select id="adoctor">
 <option value="">Select Doctor</option>
-<option>Dr. Ravi</option>
-<option>Dr. Meena</option>
-<option>Dr. Kumar</option>
+<option>Dr Ravi</option>
+<option>Dr Meena</option>
+<option>Dr Kumar</option>
 </select>
 
 <input type="date" id="adate">
@@ -232,18 +210,8 @@ cursor:pointer;
 
 <button onclick="bookAppointment()">Book Appointment</button>
 
-<br><br>
-
-<button id="receiptBtn" onclick="downloadReceipt()" style="display:none;background:green;">
-Download PDF Receipt
-</button>
-
 </div>
 
-
-<!-- APPOINTMENT TABLE -->
-
-<div class="table-container">
 
 <table id="appointmentTable">
 
@@ -252,11 +220,10 @@ Download PDF Receipt
 <th>Doctor</th>
 <th>Date</th>
 <th>Time</th>
+<th>Receipt</th>
 </tr>
 
 </table>
-
-</div>
 
 </div>
 
@@ -264,7 +231,6 @@ Download PDF Receipt
 <script>
 
 let currentUser=null;
-let lastAppointment=null;
 
 /* PAGE SWITCH */
 
@@ -285,18 +251,13 @@ function register(){
 let user=regUser.value;
 let pass=regPass.value;
 
-if(user==""||pass==""){
-alert("Fill all fields");
-return;
-}
-
 let users=JSON.parse(localStorage.getItem("users"))||[];
 
 users.push({username:user,password:pass});
 
 localStorage.setItem("users",JSON.stringify(users));
 
-alert("Account Created!");
+alert("Account Created");
 
 showLogin();
 
@@ -325,7 +286,7 @@ loadAppointments();
 
 }
 else{
-error.innerText="Invalid login";
+error.innerText="Invalid Login";
 }
 
 }
@@ -341,49 +302,6 @@ loginPage.style.display="block";
 
 }
 
-/* LOAD PATIENTS */
-
-function loadPatients(){
-
-let table=patientTable;
-let patientSelect=document.getElementById("apatient");
-
-table.innerHTML=`
-<tr>
-<th>ID</th>
-<th>Name</th>
-<th>Age</th>
-<th>Disease</th>
-<th>Doctor</th>
-</tr>`;
-
-patientSelect.innerHTML='<option value="">Select Patient</option>';
-
-let patients=JSON.parse(localStorage.getItem("patients_"+currentUser))||[];
-
-patients.forEach((p,i)=>{
-
-let row=table.insertRow();
-
-row.insertCell(0).innerText=p.id;
-
-let name=row.insertCell(1);
-name.innerHTML=`<a onclick="showPatient(${i})">${p.name}</a>`;
-
-row.insertCell(2).innerText=p.age;
-row.insertCell(3).innerText=p.disease;
-row.insertCell(4).innerText=p.doctor;
-
-let option=document.createElement("option");
-option.value=p.name;
-option.text=p.name;
-
-patientSelect.appendChild(option);
-
-});
-
-}
-
 /* ADD PATIENT */
 
 function addPatient(){
@@ -392,11 +310,6 @@ let name=pname.value;
 let age=page.value;
 let disease=pdisease.value;
 let doctor=pdoctor.value;
-
-if(name==""||age==""||disease==""||doctor==""){
-alert("Fill all fields");
-return;
-}
 
 let patients=JSON.parse(localStorage.getItem("patients_"+currentUser))||[];
 
@@ -412,8 +325,6 @@ patients.push(patient);
 
 localStorage.setItem("patients_"+currentUser,JSON.stringify(patients));
 
-alert("Patient Added");
-
 pname.value="";
 page.value="";
 pdisease.value="";
@@ -423,21 +334,44 @@ loadPatients();
 
 }
 
-/* SHOW PATIENT */
+/* LOAD PATIENTS */
 
-function showPatient(i){
+function loadPatients(){
 
-let patients=JSON.parse(localStorage.getItem("patients_"+currentUser));
+let table=patientTable;
 
-let p=patients[i];
+table.innerHTML=`
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Age</th>
+<th>Disease</th>
+<th>Doctor</th>
+</tr>`;
 
-alert(
-"Patient Details\n\n"+
-"Name: "+p.name+"\n"+
-"Age: "+p.age+"\n"+
-"Disease: "+p.disease+"\n"+
-"Doctor: "+p.doctor
-);
+let select=apatient;
+
+select.innerHTML='<option>Select Patient</option>';
+
+let patients=JSON.parse(localStorage.getItem("patients_"+currentUser))||[];
+
+patients.forEach((p,i)=>{
+
+let row=table.insertRow();
+
+row.insertCell(0).innerText=p.id;
+row.insertCell(1).innerText=p.name;
+row.insertCell(2).innerText=p.age;
+row.insertCell(3).innerText=p.disease;
+row.insertCell(4).innerText=p.doctor;
+
+let option=document.createElement("option");
+option.value=p.name;
+option.text=p.name;
+
+select.appendChild(option);
+
+});
 
 }
 
@@ -450,29 +384,11 @@ let doctor=adoctor.value;
 let date=adate.value;
 let time=atime.value;
 
-if(patient==""||doctor==""||date==""||time==""){
-alert("Fill all fields");
-return;
-}
-
 let appointments=JSON.parse(localStorage.getItem("appointments_"+currentUser))||[];
 
-let appointment={patient,doctor,date,time};
-
-appointments.push(appointment);
+appointments.push({patient,doctor,date,time});
 
 localStorage.setItem("appointments_"+currentUser,JSON.stringify(appointments));
-
-lastAppointment=appointment;
-
-alert("Appointment Booked");
-
-document.getElementById("receiptBtn").style.display="inline-block";
-
-apatient.value="";
-adoctor.value="";
-adate.value="";
-atime.value="";
 
 loadAppointments();
 
@@ -490,11 +406,12 @@ table.innerHTML=`
 <th>Doctor</th>
 <th>Date</th>
 <th>Time</th>
+<th>Receipt</th>
 </tr>`;
 
 let appointments=JSON.parse(localStorage.getItem("appointments_"+currentUser))||[];
 
-appointments.forEach(a=>{
+appointments.forEach((a,i)=>{
 
 let row=table.insertRow();
 
@@ -503,18 +420,21 @@ row.insertCell(1).innerText=a.doctor;
 row.insertCell(2).innerText=a.date;
 row.insertCell(3).innerText=a.time;
 
+let btn=row.insertCell(4);
+
+btn.innerHTML=`<button onclick="downloadReceipt(${i})">Receipt</button>`;
+
 });
 
 }
 
 /* DOWNLOAD PDF RECEIPT */
 
-function downloadReceipt(){
+function downloadReceipt(i){
 
-if(!lastAppointment){
-alert("No appointment found");
-return;
-}
+let appointments=JSON.parse(localStorage.getItem("appointments_"+currentUser));
+
+let a=appointments[i];
 
 const { jsPDF } = window.jspdf;
 
@@ -525,15 +445,16 @@ doc.text("Hospital Appointment Receipt",20,20);
 
 doc.setFontSize(12);
 
-doc.text("Patient Name: "+lastAppointment.patient,20,50);
-doc.text("Doctor: "+lastAppointment.doctor,20,65);
-doc.text("Date: "+lastAppointment.date,20,80);
-doc.text("Time: "+lastAppointment.time,20,95);
+doc.text("User: "+currentUser,20,40);
 
-doc.text("Status: Confirmed",20,120);
-doc.text("Thank you for booking.",20,140);
+doc.text("Patient: "+a.patient,20,60);
+doc.text("Doctor: "+a.doctor,20,75);
+doc.text("Date: "+a.date,20,90);
+doc.text("Time: "+a.time,20,105);
 
-doc.save("Appointment_Receipt.pdf");
+doc.text("Status: Confirmed",20,130);
+
+doc.save(a.patient+"_receipt.pdf");
 
 }
 
